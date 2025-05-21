@@ -1,0 +1,324 @@
+---
+title: "Bounding Pearson’s Correlation for Ordinal Data: Theory, Symmetry, and Empirical Consequences"
+author:
+  - name: Cees van der Eijk
+    affiliation: UoN
+  - name: Scott Moser
+    affiliation: UoN
+
+# Bibliography
+bibliography: references.bib
+csl: apa.csl
+cite-method: biblatex  # for PDF, overridden in HTML/docx
+
+# BibLaTeX (PDF-only) options
+biblatexoptions:
+  - style=apa
+  - sorting=nyt
+
+# LaTeX document options
+fontsize: 12pt
+fontfamily: mathpazo
+geometry: margin=1in
+subparagraph: true
+
+header-includes:
+  - \usepackage{float}
+
+execute:
+  warning: false
+  message: false
+
+format:
+  pdf:
+    keeptex: true
+    documentclass: article
+    pdf-engine: xelatex
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    colorlinks: true
+    linkcolor: black       # TOC, section refs
+    citecolor: RoyalBlue   # Citations
+    urlcolor: BrickRed     # Raw URLs
+    fig-pos: "H"
+    include-in-header:
+      text: |
+        \usepackage{amsmath}
+        \usepackage{amsfonts}
+        \usepackage{amssymb}
+        \usepackage{amsthm}
+        \newtheorem{proposition}{Proposition}
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+    theme: cosmo
+    css: [css/columns.css, css/seminar_v6.css, css/Qmd_noPublished.css]
+    cite-method: citeproc
+    csl: apa.csl
+    link-external-icon: true
+    link-external-newwindow: true
+  docx:
+    number-sections: true
+    highlight-style: github
+    cite-method: citeproc
+    csl: apa.csl
+    # reference-doc: custom-reference.docx
+---
+
+
+
+```{r setup, include=FALSE}
+# Ensure fs is available
+if (!requireNamespace("fs", quietly = TRUE)) install.packages("fs")
+
+# Define paths
+home_dir <- Sys.getenv("HOME")
+bib_source <- fs::path(home_dir, "Dropbox", "Bibliog", "scottAll5-BBL-URLdoi2024.bib")
+bib_target <- "references.bib"
+
+# (Re)create bibliography symlink
+if (fs::file_exists(bib_target)) fs::file_delete(bib_target)
+fs::link_create(bib_source, bib_target)
+message("- (Re)created bibliography symlink")
+
+# CSS setup
+fs::dir_create("css")
+css_dir <- fs::path(home_dir, "Dropbox", "LaTeX", "Stationary", "Rmakrdown")
+css_files <- c("columns.css", "seminar_v6.css", "Qmd_noPublished.css")
+
+for (file in css_files) {
+  source <- fs::path(css_dir, file)
+  target <- fs::path("css", file)
+  if (fs::file_exists(target)) fs::file_delete(target)
+  fs::link_create(source, target)
+  message(paste("- (Re)created symlink for", file))
+}
+
+# Download CSL file if missing
+if (!fs::file_exists("apa.csl")) {
+  download.file(
+    "https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl",
+    "apa.csl"
+  )
+  message("- Downloaded APA citation style")
+}
+
+message("Setup complete!")
+```
+
+```{r setupKF, include=FALSE, eval=FALSE}
+knitr::opts_chunk$set(fig.path="figure/graphics-", 
+                      cache.path="cache/graphics-", 
+                      fig.align="center",
+                      external=TRUE,
+                      warning=FALSE,
+                      fig.pos="H",
+                      number_sections = FALSE)
+
+```
+
+```{r setup2, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE) #fig.path="~/Dropbox/teaching/Notts/figures/", base.dir="~/Dropbox/teaching/Notts/figures/")
+knitr::opts_knit$set(root.dir = 					 "~/Dropbox/teaching/Notts/QSTEP/dataSets/data-teaching/") #"~/Dropbox/teaching/Notts/figures/") 
+options(tinytex.verbose = TRUE)
+```
+
+<!-- NOTES: (1)custom placement of Endnotes only works for `html_document(2)` -- not pdf_document   (2) boxes added -> uses `\usepackage{framed}` for LaTeX-ing -- see https://bookdown.org/yihui/rmarkdown-cookbook/custom-blocks.html  (3)    -->
+
+
+<!-- As discussed in the [this footnote](#footnote1)  the results are significant.[^11] -->
+
+<!-- [^11]: <a name="footnote1"></a>Your detailed footnote text goes here. -->
+
+
+## 3. Maximizing and Minimizing Pearson's Correlation
+
+To determine the maximum and minimum possible Pearson's correlation coefficients given the marginal distributions, we employ the concept of optimal coupling derived from the Hardy–Littlewood–Pólya rearrangement inequality.
+
+### 3.1 Maximizing Pearson's Correlation
+
+To maximize Pearson's correlation, we construct a joint distribution that pairs categories from \$X\$ and \$Y\$ in a comonotonic (similarly ordered) fashion. Specifically, the optimal joint distribution, denoted as \$F\_{\text{max}}(x,y)\$, is constructed by:
+
+1. Sorting the categories of \$X\$ in descending order according to their values.
+2. Independently sorting the categories of \$Y\$ in descending order according to their values.
+3. Pairing the largest values of \$X\$ with the largest values of \$Y\$, the next-largest with the next-largest, and so forth, maintaining consistency with the marginal totals.
+
+Formally, if \$x\_{(1)} \geq x\_{(2)} \geq \dots \geq x\_{(K\_X)}\$ and \$y\_{(1)} \geq y\_{(2)} \geq \dots \geq y\_{(K\_Y)}\$ represent the sorted categories of \$X\$ and \$Y\$, respectively, then the joint probabilities are allocated to maximize:
+
+$$
+\mathbb{E}[XY]_{\text{max}} = \sum_{i,j} x_{(i)} y_{(j)} P_{\text{max}}(X = x_{(i)}, Y = y_{(j)}).
+$$
+
+### 3.2 Minimizing Pearson's Correlation
+
+Conversely, to minimize Pearson's correlation, we construct the joint distribution \$F\_{\text{min}}(x,y)\$ by pairing categories of \$X\$ and \$Y\$ in a countermonotonic (oppositely ordered) fashion. Specifically:
+
+1. Sorting the categories of \$X\$ in descending order according to their values.
+2. Independently sorting the categories of \$Y\$ in ascending order according to their values.
+3. Pairing the largest values of \$X\$ with the smallest values of \$Y\$, and so forth, while respecting marginal totals.
+
+The minimum expected value under this joint distribution is:
+
+$$
+\mathbb{E}[XY]_{\text{min}} = \sum_{i,j} x_{
+$$
+
+
+## 3. Maximizing and Minimizing Pearson's Correlation
+
+To determine the maximum and minimum possible Pearson's correlation coefficients given the marginal distributions, we employ the concept of optimal coupling derived from the Hardy–Littlewood–Pólya rearrangement inequality.
+
+### 3.1 Maximizing Pearson's Correlation
+
+To maximize Pearson's correlation, we construct a joint distribution that pairs categories from \$X\$ and \$Y\$ in a comonotonic (similarly ordered) fashion. Specifically, the optimal joint distribution, denoted as \$F\_{\text{max}}(x,y)\$, is constructed by:
+
+1. Sorting the categories of \$X\$ in descending order according to their values.
+2. Independently sorting the categories of \$Y\$ in descending order according to their values.
+3. Pairing the largest values of \$X\$ with the largest values of \$Y\$, the next-largest with the next-largest, and so forth, maintaining consistency with the marginal totals.
+
+Formally, if \$x\_{(1)} \geq x\_{(2)} \geq \dots \geq x\_{(K\_X)}\$ and \$y\_{(1)} \geq y\_{(2)} \geq \dots \geq y\_{(K\_Y)}\$ represent the sorted categories of \$X\$ and \$Y\$, respectively, then the joint probabilities are allocated to maximize:
+
+$$
+\mathbb{E}[XY]_{\text{max}} = \sum_{i,j} x_{(i)} y_{(j)} P_{\text{max}}(X = x_{(i)}, Y = y_{(j)}).
+$$
+
+### 3.2 Minimizing Pearson's Correlation
+
+Conversely, to minimize Pearson's correlation, we construct the joint distribution \$F\_{\text{min}}(x,y)\$ by pairing categories of \$X\$ and \$Y\$ in a countermonotonic (oppositely ordered) fashion. Specifically:
+
+1. Sorting the categories of \$X\$ in descending order according to their values.
+2. Independently sorting the categories of \$Y\$ in ascending order according to their values.
+3. Pairing the largest values of \$X\$ with the smallest values of \$Y\$, and so forth, while respecting marginal totals.
+
+The minimum expected value under this joint distribution is:
+
+$$
+\mathbb{E}[XY]_{\text{min}} = \sum_{i,j} x_{(i)} y_{(K_Y - j + 1)} P_{\text{min}}(X = x_{(i)}, Y = y_{(K_Y - j + 1)}).
+$$
+
+### 3.3 Computing Pearson's Correlation Bounds
+
+Given the optimal pairings, the maximum and minimum Pearson's correlations are calculated as:
+
+$$
+r_{\text{max}} = \frac{\mathbb{E}[XY]_{\text{max}} - \mathbb{E}[X]\mathbb{E}[Y]}{\sqrt{\text{Var}(X)\text{Var}(Y)}}, \quad r_{\text{min}} = \frac{\mathbb{E}[XY]_{\text{min}} - \mathbb{E}[X]\mathbb{E}[Y]}{\sqrt{\text{Var}(X)\text{Var}(Y)}}.
+$$
+
+These bounds precisely characterize the feasible range of correlation coefficients given the fixed marginal distributions, providing a rigorous basis for interpreting correlations derived from ordinal data.
+
+
+
+
+
+
+## 4. Connection to Fréchet–Hoeffding Bounds
+
+The theoretical bounds on Pearson’s correlation given fixed marginals are closely related to the classical Fréchet–Hoeffding bounds. These bounds define the feasible region for joint distributions of two random variables given their marginal distributions.
+
+### 4.1 Fréchet–Hoeffding Bounds
+
+The Fréchet–Hoeffding bounds specify the limits of joint cumulative distribution functions (CDFs) given marginals \$F\_X(x)\$ and \$F\_Y(y)\$:
+
+$$
+\max\{F_X(x) + F_Y(y) - 1, 0\} \leq F_{XY}(x,y) \leq \min\{F_X(x), F_Y(y)\}.
+$$
+
+These bounds represent the minimum and maximum possible joint probabilities for each pair of categories \$(x,y)\$.
+
+### 4.2 Achievability of Bounds
+
+The maximum Pearson correlation, as described in Section 3, is achieved precisely when the joint distribution aligns with the upper Fréchet–Hoeffding bound (comonotonic arrangement). Conversely, the minimum correlation corresponds to the lower Fréchet–Hoeffding bound (countermonotonic arrangement).
+
+* **Upper Bound (comonotonic):** Always achievable as probabilities can be consistently allocated by aligning cumulative marginals.
+* **Lower Bound (countermonotonic):** Often not achievable in practice due to structural constraints like ties or discrete probability masses, making it impossible to perfectly align cumulative marginals inversely.
+
+### 4.3 Role of Asymmetry and Ties
+
+Asymmetry in the marginal distributions or the presence of ties significantly impacts the achievability and symmetry of these bounds:
+
+* Marginal distributions with equal or symmetrical frequencies typically yield symmetric correlation bounds (i.e., \$r\_{\text{min}} \approx -r\_{\text{max}}\$).
+* Marginal distributions with strong asymmetry or significant ties typically yield asymmetric bounds (\$r\_{\text{min}} \neq -r\_{\text{max}}\$), reflecting structural constraints in the joint probability allocation.
+
+The asymmetry phenomenon underscores the importance of considering distribution shape and entropy in interpreting correlation results.
+
+### 4.4 Practical Implications
+
+Recognizing these connections provides crucial insights for applied researchers:
+
+* **Interpretation:** Observed correlation coefficients should be contextualized within their theoretically permissible range.
+* **Diagnostics:** Calculation of Fréchet–Hoeffding bounds offers a diagnostic tool for evaluating whether reported correlations in empirical research are substantively meaningful or artifacts of marginal constraints.
+
+In subsequent sections, we explore specific conditions under which asymmetry arises, providing explicit analytical conditions and empirical illustrations to guide practical interpretation.
+
+
+
+
+## 5. Symmetry and Asymmetry in Correlation Bounds
+
+A critical insight from the analysis of correlation bounds is that the achievable maximum and minimum Pearson correlations are not always symmetric around zero. This section explores conditions under which this symmetry holds or breaks and introduces entropy as a measure of marginal asymmetry.
+
+### 5.1 Defining Symmetry in Correlation Bounds
+
+Symmetry in correlation bounds occurs when:
+
+$$
+r_{\text{min}} = -r_{\text{max}}
+$$
+
+This equality implies that the magnitudes of the highest achievable positive and negative correlations are identical.
+
+### 5.2 Conditions for Symmetry
+
+Symmetry typically arises under conditions of balanced or symmetric marginal distributions. More explicitly:
+
+* Marginal distributions with uniform frequencies or probabilities.
+* Marginal distributions symmetric about their median category.
+
+Under these conditions, the cumulative probability masses can be aligned or inversely aligned without structural discrepancies, maintaining symmetric correlation bounds.
+
+### 5.3 Conditions for Asymmetry
+
+Asymmetry (\$r\_{\text{min}} \ne -r\_{\text{max}}\$) commonly arises under the following scenarios:
+
+* Strongly skewed marginal distributions: When one or both marginal distributions are heavily skewed, the allocation of joint probabilities inherently favors one direction of correlation over the other.
+* Presence of ties: Significant ties in marginal distributions limit the flexibility of inverse alignment in cumulative distributions, causing structural constraints that prevent the achievement of perfectly inverse pairings.
+
+### 5.4 Visualizing Symmetry and Asymmetry
+
+Visualization strategies, such as heatmaps and entropy-based diagrams, illustrate how marginal distributions transition from symmetric to asymmetric and the corresponding impact on achievable correlation bounds. Such visualizations aid researchers in understanding and interpreting empirical correlation results within their permissible theoretical ranges.
+
+### 5.5 Role of Entropy in Measuring Asymmetry
+
+Entropy provides a useful measure of distributional symmetry or asymmetry. Higher entropy typically indicates a more uniform (symmetrical) distribution, while lower entropy signals concentrated (asymmetrical) probabilities. Formally, entropy (\$H\$) is given by:
+
+$$
+H(X) = -\sum_{i=1}^{K_X} p_X(x_i) \log p_X(x_i), \quad H(Y) = -\sum_{j=1}^{K_Y} p_Y(y_j) \log p_Y(y_j).
+$$
+
+As entropy decreases, indicating greater skewness or concentration in probability masses, the bounds on correlations typically become more asymmetric.
+
+### 5.6 Empirical and Practical Considerations
+
+Empirically, assessing symmetry or asymmetry in correlation bounds provides researchers with important context for interpreting results:
+
+* Symmetric bounds imply similar interpretative weight for positive and negative correlations.
+* Asymmetric bounds highlight the necessity for cautious interpretation, especially regarding the relative magnitude and substantive significance of observed correlations.
+
+Recognizing symmetry conditions and their practical implications thus plays an essential role in robustly interpreting correlations in empirical analyses of ordinal data.
+
+
+
+
+\newpage
+# References
+
+::: {#refs}
+<!-- This will be populated by Pandoc if you use --citeproc and a .bib file -->
+:::
+
+\newpage
+
+
+

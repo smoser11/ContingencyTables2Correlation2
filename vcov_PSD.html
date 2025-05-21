@@ -1,0 +1,94 @@
+<style type="text/css">(null)</style>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+<p>A <strong>variance-covariance matrix</strong> is always <strong>positive semi-definite (PSD)</strong> because of fundamental properties of variance, inner products, and expectations. Below, I&#8217;ll break down why this is the case.</p>
+
+<hr />
+
+<h3 id="1.definitionofavariance-covariancematrix"><strong>1. Definition of a Variance-Covariance Matrix</strong></h3>
+
+<p>For a random vector <span class="math">\(\mathbf{X} = (X_1, X_2, \dots, X_n)^T\)</span>, the <strong>variance-covariance matrix</strong> (or simply covariance matrix) is:</p>
+
+<p><span class="math">\[\mathbf{\Sigma} = \mathbb{E}[(\mathbf{X} - \mathbb{E}[\mathbf{X}])(\mathbf{X} - \mathbb{E}[\mathbf{X}])^T]\]</span></p>
+
+<p>Each entry in <span class="math">\(\mathbf{\Sigma}\)</span> is given by:</p>
+
+<p><span class="math">\[\sigma_{ij} = \text{Cov}(X_i, X_j) = \mathbb{E}[(X_i - \mathbb{E}[X_i])(X_j - \mathbb{E}[X_j])]\]</span></p>
+
+<p>where:</p>
+
+<ul>
+<li><strong>Diagonal elements</strong> <span class="math">\(\sigma_{ii} = \text{Var}(X_i)\)</span> are variances (always non-negative).</li>
+<li><strong>Off-diagonal elements</strong> <span class="math">\(\sigma_{ij}\)</span> are covariances.</li>
+</ul>
+
+<hr />
+
+<h3 id="2.whyismathbfsigmaalwayspositivesemi-definite"><strong>2. Why is <span class="math">\(\mathbf{\Sigma}\)</span> Always Positive Semi-Definite?</strong></h3>
+
+<p>A matrix is <strong>positive semi-definite (PSD)</strong> if, for any nonzero vector <span class="math">\(\mathbf{z}\)</span>,</p>
+
+<p><span class="math">\[\mathbf{z}^T \mathbf{\Sigma} \mathbf{z} \geq 0\]</span></p>
+
+<p>To see why this holds for <span class="math">\(\mathbf{\Sigma}\)</span>:</p>
+
+<ol>
+<li><p><strong>Quadratic Form Interpretation</strong><br />
+Consider the quadratic form:</p>
+
+<p><span class="math">\[\mathbf{z}^T \mathbf{\Sigma} \mathbf{z}\]</span></p>
+
+<p>Expanding using the definition of <span class="math">\(\mathbf{\Sigma}\)</span>:</p>
+
+<p><span class="math">\[\mathbf{z}^T \mathbb{E}[(\mathbf{X} - \mathbb{E}[\mathbf{X}])(\mathbf{X} - \mathbb{E}[\mathbf{X}])^T] \mathbf{z}\]</span></p>
+
+<p>Using the linearity of expectation:</p>
+
+<p><span class="math">\[\mathbb{E}[\mathbf{z}^T (\mathbf{X} - \mathbb{E}[\mathbf{X}])(\mathbf{X} - \mathbb{E}[\mathbf{X}])^T \mathbf{z}]\]</span></p>
+
+<p>This simplifies to:</p>
+
+<p><span class="math">\[\mathbb{E}[(\mathbf{z}^T (\mathbf{X} - \mathbb{E}[\mathbf{X}]))^2]\]</span></p>
+
+<p>Since this is an <strong>expectation of a squared quantity</strong>, it is always <strong>non-negative</strong>, ensuring:</p>
+
+<p><span class="math">\[\mathbf{z}^T \mathbf{\Sigma} \mathbf{z} \geq 0\]</span></p>
+
+<p>Thus, <span class="math">\(\mathbf{\Sigma}\)</span> is <strong>positive semi-definite</strong>.</p></li>
+<li><p><strong>Variance is Always Non-Negative</strong><br />
+Since <strong>variance cannot be negative</strong>, the diagonal elements (variances) satisfy:</p>
+
+<p><span class="math">\[\text{Var}(X_i) = \sigma_{ii} \geq 0\]</span></p>
+
+<p>This ensures that the matrix does not have <strong>negative eigenvalues</strong>, a key requirement for PSD matrices.</p></li>
+<li><p><strong>Covariance as an Inner Product</strong><br />
+The covariance function behaves like an <strong>inner product</strong> in a Hilbert space, meaning it satisfies properties like:</p>
+
+<p><span class="math">\[\text{Cov}(X, X) \geq 0, \quad \text{Cov}(X, Y) = \text{Cov}(Y, X)\]</span></p>
+
+<p>Since inner product matrices are always PSD, <span class="math">\(\mathbf{\Sigma}\)</span> inherits this property.</p></li>
+<li><p><strong>Eigenvalue Interpretation</strong><br />
+The eigenvalues of a covariance matrix represent the <strong>variances along principal component directions</strong>. Since variance is <strong>always non-negative</strong>, all eigenvalues are <strong>non-negative</strong>, ensuring that <span class="math">\(\mathbf{\Sigma}\)</span> is PSD.</p></li>
+</ol>
+
+<hr />
+
+<h3 id="3.whenismathbfsigmapositivedefinitepd"><strong>3. When is <span class="math">\(\mathbf{\Sigma}\)</span> Positive Definite (PD)?</strong></h3>
+
+<p>A matrix is <strong>positive definite (PD)</strong> if <span class="math">\(\mathbf{z}^T \mathbf{\Sigma} \mathbf{z} &gt; 0\)</span> for all nonzero <span class="math">\(\mathbf{z}\)</span>.<br />
+For the covariance matrix:</p>
+
+<ul>
+<li><span class="math">\(\mathbf{\Sigma}\)</span> is <strong>positive definite</strong> if and only if the random variables <span class="math">\(X_1, \dots, X_n\)</span> are <strong>linearly independent</strong>.</li>
+<li>If at least one variable can be written as a <strong>linear combination</strong> of others, <span class="math">\(\mathbf{\Sigma}\)</span> becomes <strong>singular</strong> (rank-deficient) and is <strong>only positive semi-definite</strong>.</li>
+</ul>
+
+<hr />
+
+<h3 id="4.summary"><strong>4. Summary</strong></h3>
+
+<p>✅ <strong>Always PSD</strong>: A covariance matrix <span class="math">\(\mathbf{\Sigma}\)</span> is always <strong>positive semi-definite</strong> because it is the expectation of a squared quantity.<br />
+✅ <strong>Not always PD</strong>: If some variables are perfectly correlated (or one is a linear function of others), the matrix becomes <strong>singular</strong> and is <strong>not invertible</strong>.<br />
+✅ <strong>Eigenvalue Rule</strong>: All eigenvalues of <span class="math">\(\mathbf{\Sigma}\)</span> are <strong>non-negative</strong>, ensuring PSD.</p>

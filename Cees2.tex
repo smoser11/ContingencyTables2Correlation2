@@ -1,0 +1,161 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage[backend=biber, style=apa]{biblatex}
+\addbibresource{references.bib}
+
+\geometry{margin=1in}
+\setstretch{1.25}
+
+\title{Bounding Pearson’s Correlation for Ordinal Data: Theory, Symmetry, and Empirical Consequences}
+\author{Author names omitted for review}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Pearson’s correlation coefficient \( r \) is commonly used with ordinal variables, despite being designed for interval-scale data. This paper develops a theoretical framework for bounding \( r \) given fixed marginal distributions. Using rearrangement inequalities and connections to Fréchet bounds, we derive conditions for achieving the minimum and maximum correlations, show when symmetry fails (\( r_{\min} \ne -r_{\max} \)), and prove that the expected value of \( r \) under randomization is zero. Simulations illustrate how marginal skew and asymmetry influence the attainable range of \( r \), with implications for factor analysis and structural modeling.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+%-------------------------------------------
+\section{Introduction}
+
+\begin{itemize}
+  \item Pearson’s \( r \) is widely used even when the variables are ordinal.
+  \item Ordinal variables violate the assumptions of interval measurement, yet researchers apply \( r \) due to its familiarity and convenience.
+  \item But \( r \) is constrained by the marginals of the two variables — its range is not always \([-1, 1]\).
+  \item This paper develops the theoretical and empirical framework to:
+    \begin{enumerate}[label=(\roman*)]
+      \item Derive the min and max of \( r \) for fixed marginals
+      \item Relate these to classical probabilistic bounds (Fréchet–Hoeffding)
+      \item Identify when bounds are symmetric and when they are not
+      \item Prove that \( \mathbb{E}[r] = 0 \) under randomization
+      \item Illustrate implications for interpreting correlation-based analyses
+    \end{enumerate}
+\end{itemize}
+
+%-------------------------------------------
+\section{Setup and Notation}
+
+\begin{itemize}
+  \item Define ordinal variables \( X \) and \( Y \) with \( K_X, K_Y \) categories.
+  \item Let \( p_i = P(X = x_i), q_j = P(Y = y_j) \); fixed marginals.
+  \item Pearson’s correlation:
+  \[
+  r = \frac{\mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]}{\sqrt{\text{Var}(X)\text{Var}(Y)}}
+  \]
+  \item Our goal: Determine the extreme values of \( r \) over all joint distributions consistent with \( \{p_i\}, \{q_j\} \).
+\end{itemize}
+
+%-------------------------------------------
+\section{Theory: Bounding Pearson’s \( r \) with Fixed Marginals}
+
+\subsection{(1) Finding the Extremal Joint Distributions}
+\begin{itemize}
+  \item Define the optimization problem: maximize/minimize \( \mathbb{E}[XY] \) over all couplings.
+  \item Use rearrangement inequalities and greedy coupling to construct \( F_{\max}(x, y) \).
+  \item Show examples with 4×5 and 5×5 marginals.
+\end{itemize}
+
+\subsection{(1a) Closed-Form Expressions}
+\begin{itemize}
+  \item Present analytic expressions for the min and max of \( \mathbb{E}[XY] \), where derivable.
+  \item Discuss bounds when exact forms are not attainable due to discreteness.
+\end{itemize}
+
+\subsection{(2) Relationship to Fréchet–Hoeffding Bounds}
+\begin{itemize}
+  \item Show that min/max \( r \) corresponds to extremal cases of joint distribution under Fréchet bounds.
+  \item Link this to the feasible region defined by Boole–Fréchet inequalities.
+\end{itemize}
+
+\subsection{(3) Symmetry, Asymmetry, and the Role of Ties}
+\begin{itemize}
+  \item Theoretical result: symmetry holds under symmetric marginals.
+  \item When marginals are asymmetric or tied, \( r_{\min} \ne -r_{\max} \).
+  \item Explore how entropy of marginals predicts symmetry breaking.
+\end{itemize}
+
+\subsection{(4) When Can \( r_{\min} > 0 \)?}
+\begin{itemize}
+  \item Conditions under which the lower bound on \( r \) is strictly positive.
+  \item Example simulations to show how skewed marginals can eliminate negative correlation.
+\end{itemize}
+
+\subsection{(5) Center of the Randomization Distribution}
+\begin{itemize}
+  \item Proof: under uniform random permutation (null of independence), \( \mathbb{E}[r] = 0 \), regardless of marginals.
+  \item Use this to justify randomization tests even when marginals are highly asymmetric.
+\end{itemize}
+
+%-------------------------------------------
+\section{Empirical Illustrations: Simulating the Randomization Distribution}
+
+\subsection{Simulation Design}
+\begin{itemize}
+  \item Fixed-marginal randomization using permutation methods (existing R code).
+  \item Tables: 4×4, 4×5, 3×7, 5×5, 7×10.
+  \item Varying marginal shape: symmetric, skewed, uniform, bimodal.
+\end{itemize}
+
+\subsection{Observed Range of \( r \) under the Null}
+\begin{itemize}
+  \item Show full distribution of \( r \) under permutation.
+  \item Overlay theoretical min/max — often quite narrow.
+  \item Demonstrate how symmetry or skew influences spread and center.
+\end{itemize}
+
+\subsection{When Is \( r \) Meaningful?}
+\begin{itemize}
+  \item Compare observed correlations from real data to attainable range under null.
+  \item Situations where a modest \( r \) (e.g., .25) is near-maximal vs. those where it’s central.
+  \item Implications for interpreting correlation-based results in practice.
+\end{itemize}
+
+%-------------------------------------------
+\section{Implications for Applied Work}
+
+\subsection{Consequences for Statistical Modeling}
+\begin{itemize}
+  \item SEM, factor analysis: attenuated \( r \) leads to over-factoring or underestimation.
+  \item Justification for polychoric correlation vs. bounded Pearson’s \( r \).
+\end{itemize}
+
+\subsection{Recommendations}
+\begin{itemize}
+  \item Check whether observed \( r \) is near the bounds given marginals.
+  \item Report bounds alongside point estimates.
+  \item Use permutation testing or bounds-aware diagnostics for correlation interpretation.
+\end{itemize}
+
+%-------------------------------------------
+\section{Conclusion}
+\begin{itemize}
+  \item Pearson’s correlation has hidden constraints when applied to ordinal data.
+  \item We derive sharp theoretical bounds and show when and why symmetry breaks.
+  \item Our results support more nuanced interpretation of correlation in ordinal contexts.
+  \item A lightweight R package accompanies this paper, allowing users to compute bounds and simulate randomization distributions.
+\end{itemize}
+
+%-------------------------------------------
+\appendix
+\section*{Technical Appendix (Optional)}
+\begin{itemize}
+  \item Formal derivations of min/max \( E[XY] \).
+  \item Symmetry-breaking conditions.
+  \item Greedy algorithm for coupling construction (pseudocode).
+\end{itemize}
+
+\printbibliography
+
+\end{document}

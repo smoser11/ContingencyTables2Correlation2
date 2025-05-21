@@ -1,0 +1,411 @@
+---
+title: "Marginal Extremes: Defining the Limits of Association in Cross-Tabulated Data"
+author:
+  - name: Cees van der Eijk
+    affiliation: UoN
+  - name: Scott Moser
+    affiliation: UoN
+format:
+  pdf:
+    fontfamily: palatino
+    fontsize: 12pt
+---
+
+# Optimal Coupling
+
+## **Proposition**
+
+Let $X$ and $Y$ be two ordinal random variables taking values in
+
+$$\{1, 2, \ldots, K_X\} \quad \text{and} \quad \{1, 2, \ldots, K_Y\},$$
+
+respectively. Suppose the **marginal distributions** of $X$ and $Y$ are given (i.e., $\Pr(X = i)$ is fixed for each $i\in \{1,\dots,K_X\}$, and $\Pr(Y = j)$ is fixed for each $j\in \{1,\dots,K_Y\}$). Among all joint distributions of $(X, Y)$ consistent with these marginals, the **maximum value of Spearman’s rank-correlation** is attained via a comonotonic ordering -- by arranging the highest ranks of $X$ with the highest ranks of $Y$.   The **minimum value of Spearman’s rank-correlation** is attained via a countermonotonic ordering -- by arranging the highest ranks of $X$ with the _lowest_ ranks of $Y$.
+
+ Formally, if we define
+
+$$\mathrm{rank}(X) = \begin{cases}  
+1 & \text{if } X=1,\\  
+2 & \text{if } X=2,\\  
+\;\;\vdots\\  
+K_X & \text{if } X=K_X,  
+\end{cases}  
+\quad  
+\mathrm{rank}(Y) = \begin{cases}  
+1 & \text{if } Y=1,\\  
+2 & \text{if } Y=2,\\  
+\;\;\vdots\\  
+K_Y & \text{if } Y=K_Y,  
+\end{cases}$$
+
+then the joint distribution that **sorts** $X$ in descending order and $Y$ in descending order (matching largest with largest, next-largest with next-largest, etc.) maximizes
+
+$$\rho_S(X, Y) \;=\; \mathrm{corr}\bigl(\mathrm{rank}(X), \mathrm{rank}(Y)\bigr).$$
+
+### **Proof**
+
+1. **Spearman’s Correlation as Pearson’s Correlation of Ranks**  
+    By definition, Spearman’s rank-correlation $\rho_S(X,Y)$ is the Pearson correlation between $\mathrm{rank}(X)$ and $\mathrm{rank}(Y)$. That is,
+    
+    $$\rho_S(X, Y) \;=\; \frac{\mathrm{Cov}(\mathrm{rank}(X),\, \mathrm{rank}(Y))}{\sqrt{\mathrm{Var}(\mathrm{rank}(X))\;\mathrm{Var}(\mathrm{rank}(Y))}}.$$
+    
+    Maximizing $\rho_S$ is equivalent to maximizing the _expected product_ $\mathbb{E}[\mathrm{rank}(X)\,\mathrm{rank}(Y)]$ subject to the fixed marginal distributions of $\mathrm{rank}(X)$ and $\mathrm{rank}(Y)$.
+    
+2. **Rewriting the Expectation**  
+    Let $r_1 < r_2 < \cdots < r_{K_X}$ be the distinct rank values for $X$ and $s_1 < s_2 < \cdots < s_{K_Y}$ be the distinct rank values for $Y$. (Here $r_i = i$ and $s_j = j$ in typical usage.) Any joint distribution $\Pr(X=i, Y=j)$ that respects $\Pr(X=i)$ and $\Pr(Y=j)$ must allocate probability mass in a 2D contingency table, but always summing to $p_X(i)$ in row $i$ and $p_Y(j)$ in column $j$. The quantity to be maximized is
+    
+    $$\sum_{i=1}^{K_X}\;\sum_{j=1}^{K_Y} \;r_i\,s_j \;\Pr(X = i, Y = j).$$
+3. **Application of the Rearrangement Inequality**  
+    The **rearrangement inequality** (Hardy–Littlewood–Pólya, Theorem 368) or the discrete analog by Whitt (1978) tells us that for two finite sequences $\{a_1,\dots,a_m\}$ and $\{b_1,\dots,b_n\}$ (here, the sequences are effectively the rank values weighted by the probability masses), the sum of products $\sum a_i\,b_{\sigma(i)}$ is maximized precisely when both sequences are sorted in the same order (both ascending or both descending). In the probability setting, “sorting from largest to smallest” means that the highest ranks of $X$ should be paired with the highest ranks of $Y$. Concretely, if $X$ is in descending rank order $(K_X, K_X-1, \ldots)$ and $Y$ is also in descending rank order $(K_Y, K_Y-1, \ldots)$, then the product of ranks $\mathrm{rank}(X)\,\mathrm{rank}(Y)$ is as large as possible in expectation.
+    
+4. **Different Number of Levels**  
+    If $K_X \neq K_Y$, the principle is the same. We let $\mathrm{rank}(X)\in\{1,\dots,K_X\}$ and $\mathrm{rank}(Y)\in\{1,\dots,K_Y\}$. The rearrangement inequality still applies: list all “mass points” of $X$ in descending order of rank, and list all “mass points” of $Y$ in descending order of rank. Pair them index-by-index so that the largest rank in $X$ is matched with the largest rank in $Y$. This arrangement yields the maximal expected product of ranks.
+    
+5. **Concrete Example (Different Levels)**
+    
+    * Suppose $K_X = 3$ and $K_Y = 4$. Then $\mathrm{rank}(X)$ takes values $\{1,2,3\}$ and $\mathrm{rank}(Y)$ takes $\{1,2,3,4\}$.
+    * Let $\Pr(X=3) = 0.2$, $\Pr(X=2)=0.5$, $\Pr(X=1)=0.3$; and $\Pr(Y=4)=0.1$, $\Pr(Y=3)=0.4$, $\Pr(Y=2)=0.3$, $\Pr(Y=1)=0.2$.
+    * To maximize $\mathbb{E}[\mathrm{rank}(X)\,\mathrm{rank}(Y)]$, we sort $X$ from 3 down to 1 and $Y$ from 4 down to 1. We then fill the contingency table so that the 0.2 probability mass of $X=3$ is paired as much as possible with the 0.1 mass of $Y=4$, the 0.4 mass of $Y=3$, and so on, always aligning the largest rank masses together.
+    * This yields the comonotonic distribution that achieves the largest $\mathrm{rank}(X)\cdot \mathrm{rank}(Y)$ on average, and thus the maximum Spearman correlation.
+    
+6. **Conclusion**  
+    By the rearrangement argument, the maximal Spearman rank-correlation is obtained via the comonotonic (descending-with-descending) joint distribution. Ties or repeated categories do not affect this principle, other than allowing multiple solutions that achieve the same maximum. Thus, the proposition is proved.
+    
+<!-- $\QED$ -->
+
+# Extremal Values
+
+We seek to find the maximum Pearson correlation coefficient, $r_{\max}$, between two discrete variables $X$ and $Y$ that take values in $\{0,1,2, \dots, K-1\}$, **given their fixed marginal distributions**.
+
+* * *
+
+### **Step 1: Define the Problem and Notation**
+
+We are given:
+
+* $n_X = (n_{X=0}, n_{X=1}, ..., n_{X=K-1})$, where $n_{X=i}$ is the number of times $X = i$ appears.
+    
+* $n_Y = (n_{Y=0}, n_{Y=1}, ..., n_{Y=K-1})$, where $n_{Y=j}$ is the number of times $Y = j$ appears.
+    
+* The total number of observations:
+    
+    $$N = \sum_{i=0}^{K-1} n_{X=i} = \sum_{j=0}^{K-1} n_{Y=j}$$
+
+### **Step 2: Compute the Means and Standard Deviations**
+
+The mean values of $X$ and $Y$ are:
+
+$$\bar{X} = \frac{1}{N} \sum_{i=0}^{K-1} i \cdot n_{X=i}, \quad  
+\bar{Y} = \frac{1}{N} \sum_{j=0}^{K-1} j \cdot n_{Y=j}$$
+
+The variances are:
+
+$$\sigma_X^2 = \frac{1}{N} \sum_{i=0}^{K-1} (i - \bar{X})^2 \cdot n_{X=i}, \quad  
+\sigma_Y^2 = \frac{1}{N} \sum_{j=0}^{K-1} (j - \bar{Y})^2 \cdot n_{Y=j}$$
+
+Thus, the standard deviations are:
+
+$$\sigma_X = \sqrt{\frac{1}{N} \sum_{i=0}^{K-1} (i - \bar{X})^2 \cdot n_{X=i}}, \quad  
+\sigma_Y = \sqrt{\frac{1}{N} \sum_{j=0}^{K-1} (j - \bar{Y})^2 \cdot n_{Y=j}}$$
+
+* * *
+
+### **Step 3: Construct the Joint Distribution for Maximum Correlation**
+
+To maximize $r$, we must maximize:
+
+$$\text{Cov}(X,Y) = E[XY] - \bar{X} \bar{Y}$$
+
+To do this, we construct a **Sorted Array**:
+
+1. Sort the values of $X$ in descending order according to their frequencies.
+2. Independently, sort the values of $Y$ in descending order according to their frequencies.
+3. Assign pairings $(X_i, Y_i)$ in order, ensuring that the highest values of $X$ are paired with the highest values of $Y$, while respecting the marginal totals.
+
+Let $m_{i,j}$ denote the number of times the pair $(i,j)$ appears. The optimal strategy follows:
+
+$$m_{i,j} = \min(n_{X=i}, n_{Y=j})$$
+
+This ensures that the highest available values of $X$ and $Y$ are paired together as much as possible.
+
+* * *
+
+### **Step 4: Compute $E[XY]$**
+
+Given the optimal pair assignments:
+
+$$E[XY]_{\max} = \frac{1}{N} \sum_{i=0}^{K-1} \sum_{j=0}^{K-1} i \cdot j \cdot m_{i,j}$$
+
+Substituting $m_{i,j} = \min(n_{X=i}, n_{Y=j})$, we obtain:
+
+$$E[XY]_{\max} = \frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j})$$
+
+* * *
+
+### **Step 5: Compute Maximum Covariance**
+
+$$\text{Cov}_{\max}(X,Y) = E[XY]_{\max} - \bar{X} \bar{Y}$$
+
+Substituting the expectation:
+
+$$\text{Cov}_{\max}(X,Y) = \frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j}) - \bar{X} \bar{Y}$$
+
+* * *
+
+### **Step 6: Compute $r_{\max}$**
+
+Using Pearson’s formula:
+
+$$r_{\max} = \frac{\text{Cov}_{\max}(X, Y)}{\sigma_X \sigma_Y}$$ $$r_{\max} =  
+\frac{\frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j}) - \bar{X} \bar{Y}}  
+{\sigma_X \sigma_Y}$$
+
+* * *
+
+* * *
+
+**Final Answer**
+----------------
+
+$$r_{\max} =  
+\frac{\frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j}) - \bar{X} \bar{Y}}  
+{\sigma_X \sigma_Y}$$
+
+This refined response now properly defines the indices in summations, explains the sorting approach, and suggests adding a numerical example for clarity.
+
+
+\begin{proposition}
+Let $X$ and $Y$
+
+
+\end{proposition}
+
+## Proposition: Maximum Spearman Rank Correlation
+
+
+
+Let $X$ and $Y$ be two discrete ordinal random variables, taking values in:
+
+* $X \in \{x_1, x_2, \dots, x_m\}$ with known marginal frequencies $(n_{X=x_1}, n_{X=x_2}, ..., n_{X=x_m})$, where $n_{X=x_i}$ denotes the number of observations where $X = x_i$.
+* $Y \in \{y_1, y_2, \dots, y_n\}$ with known marginal frequencies $(n_{Y=y_1}, n_{Y=y_2}, ..., n_{Y=y_n})$.
+
+The **maximum Spearman rank correlation** is obtained by constructing the joint distribution as follows:
+
+1. **Sort** the values of $X$ in descending order according to their frequencies.
+2. **Independently sort** the values of $Y$ in descending order according to their frequencies.
+3. **Pair** the highest values of $X$ with the highest values of $Y$, the second highest with the second highest, and so on, while respecting the marginal totals.
+
+That is, the rank vectors $R_X$ and $R_Y$ should be **similarly ordered** to maximize Spearman rank correlation.
+
+* * *
+
+**Step 1: Definition of Spearman Rank Correlation**
+---------------------------------------------------
+
+Spearman's rank correlation coefficient is given by:
+
+$$\rho = \frac{\sum_{i=1}^{N} R_{X,i} R_{Y,i} - N \bar{R}_X \bar{R}_Y}{N \sigma_{R_X} \sigma_{R_Y}}$$
+
+where:
+
+* $N$ is the total number of observations,
+* $R_{X,i}$ and $R_{Y,i}$ are the ranks of the $i$-th observations of $X$ and $Y$,
+* $\bar{R}_X$ and $\bar{R}_Y$ are the mean ranks,
+* $\sigma_{R_X}$ and $\sigma_{R_Y}$ are the standard deviations of the rank variables.
+
+To maximize $\rho$, we must maximize:
+
+$$\sum_{i=1}^{N} R_{X,i} R_{Y,i}$$
+
+which is equivalent to maximizing the **sum of products of ranks**.
+
+* * *
+
+**Step 2: Application of the Hardy-Littlewood-Polya Rearrangement Inequality**
+------------------------------------------------------------------------------
+
+The Hardy-Littlewood-Polya rearrangement inequality (Theorem 368 in _Inequalities_) states:
+
+$$\sum_{i=1}^{N} a_i^* b_i^* \geq \sum_{i=1}^{N} a_i b_i \geq \sum_{i=1}^{N} a_i^* b_i'$$
+
+where:
+
+* $a_i^*$ and $b_i^*$ are the **similarly ordered** permutations of $a_i$ and $b_i$ (largest with largest, second largest with second largest, etc.).
+* $a_i^*$ and $b_i'$ are **oppositely ordered** permutations (largest with smallest, second largest with second smallest, etc.).
+
+Applying this inequality to the rank variables $R_X$ and $R_Y$, we conclude that:
+
+$$\sum_{i=1}^{N} R_{X,i} R_{Y,i}$$
+
+is maximized when $R_X$ and $R_Y$ are **sorted in the same order**. This ensures that the sum of rank products is maximized, and thus Spearman’s $\rho$ is maximized.
+
+* * *
+
+**Step 3: Constructing the Optimal Joint Distribution**
+-------------------------------------------------------
+
+To enforce this optimal alignment, we follow these steps:
+
+1. **Sort** $X$ from largest to smallest according to its marginal frequencies.
+2. **Independently sort** $Y$ from largest to smallest according to its marginal frequencies.
+3. **Pair** values such that the highest available ranks of $X$ are assigned to the highest available ranks of $Y$, and continue in this fashion until all observations are assigned.
+
+This ensures that the largest ranks of $X$ are aligned with the largest ranks of $Y$, which is the necessary condition for maximizing Spearman’s correlation.
+
+* * *
+
+**Step 4: Numerical Example**
+-----------------------------
+
+Let’s consider a small example where $X$ and $Y$ have different numbers of levels.
+
+**Marginals:**
+
+* $X$ takes values $\{0,1,2\}$ with frequencies $(5,3,2)$.
+* $Y$ takes values $\{0,1,2,3\}$ with frequencies $(3,4,2,1)$.
+
+### **Step 1: Sort by Frequency**
+
+Sorting both in decreasing order:
+
+$$X: (0,0,0,0,0,1,1,1,2,2)$$ $$Y: (1,1,1,1,0,0,2,2,3,3)$$
+
+### **Step 2: Pairing**
+
+Pairing elements sequentially, ensuring highest values are together:
+
+$$(X,Y) = [(0,1), (0,1), (0,1), (0,1), (0,0), (1,0), (1,2), (1,2), (2,3), (2,3)]$$
+
+### **Step 3: Compute Spearman’s Rank Correlation**
+
+Assigning ranks and computing $\rho$ shows that this maximized the sum $\sum R_{X,i} R_{Y,i}$, thus achieving $\rho_{\max}$.
+
+* * *
+
+**Conclusion**
+--------------
+
+By applying the Hardy-Littlewood-Polya inequality, we rigorously prove that the maximum Spearman correlation is achieved when the joint distribution is constructed by sorting $X$ and $Y$ separately in decreasing order and then pairing them. This construction ensures that rank orderings are maximally similar, which, by definition, maximizes the Spearman rank correlation.
+
+$$\square$$
+
+
+# Correlary: The Min and Max Values
+
+
+We seek to find the maximum Pearson correlation coefficient, $r_{\max}$, between two discrete variables $X$ and $Y$ that take values in $\{0,1,2, \dots, K-1\}$, **given their fixed marginal distributions**.
+
+* * *
+
+### **Step 1: Define the Problem and Notation**
+
+We are given:
+
+* $n_X = (n_{X=0}, n_{X=1}, ..., n_{X=K-1})$, where $n_{X=i}$ is the number of times $X = i$ appears.
+    
+* $n_Y = (n_{Y=0}, n_{Y=1}, ..., n_{Y=K-1})$, where $n_{Y=j}$ is the number of times $Y = j$ appears.
+    
+* The total number of observations:
+    
+    $$N = \sum_{i=0}^{K-1} n_{X=i} = \sum_{j=0}^{K-1} n_{Y=j}$$
+
+### **Step 2: Compute the Means and Standard Deviations**
+
+The mean values of $X$ and $Y$ are:
+
+$$\bar{X} = \frac{1}{N} \sum_{i=0}^{K-1} i \cdot n_{X=i}, \quad  
+\bar{Y} = \frac{1}{N} \sum_{j=0}^{K-1} j \cdot n_{Y=j}$$
+
+The variances are:
+
+$$\sigma_X^2 = \frac{1}{N} \sum_{i=0}^{K-1} (i - \bar{X})^2 \cdot n_{X=i}, \quad  
+\sigma_Y^2 = \frac{1}{N} \sum_{j=0}^{K-1} (j - \bar{Y})^2 \cdot n_{Y=j}$$
+
+Thus, the standard deviations are:
+
+$$\sigma_X = \sqrt{\frac{1}{N} \sum_{i=0}^{K-1} (i - \bar{X})^2 \cdot n_{X=i}}, \quad  
+\sigma_Y = \sqrt{\frac{1}{N} \sum_{j=0}^{K-1} (j - \bar{Y})^2 \cdot n_{Y=j}}$$
+
+* * *
+
+### **Step 3: Construct the Joint Distribution for Maximum Correlation**
+
+To maximize $r$, we must maximize:
+
+$$\text{Cov}(X,Y) = E[XY] - \bar{X} \bar{Y}$$
+
+To do this, we construct a **Sorted Array**:
+
+1. Sort the values of $X$ in descending order according to their frequencies.
+2. Independently, sort the values of $Y$ in descending order according to their frequencies.
+3. Assign pairings $(X_i, Y_i)$ in order, ensuring that the highest values of $X$ are paired with the highest values of $Y$, while respecting the marginal totals.
+
+Let $m_{i,j}$ denote the number of times the pair $(i,j)$ appears. The optimal strategy follows:
+
+$$m_{i,j} = \min(n_{X=i}, n_{Y=j})$$
+
+This ensures that the highest available values of $X$ and $Y$ are paired together as much as possible.
+
+* * *
+
+### **Step 4: Compute $E[XY]$**
+
+Given the optimal pair assignments:
+
+$$E[XY]_{\max} = \frac{1}{N} \sum_{i=0}^{K-1} \sum_{j=0}^{K-1} i \cdot j \cdot m_{i,j}$$
+
+Substituting $m_{i,j} = \min(n_{X=i}, n_{Y=j})$, we obtain:
+
+$$E[XY]_{\max} = \frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j})$$
+
+* * *
+
+### **Step 5: Compute Maximum Covariance**
+
+$$\text{Cov}_{\max}(X,Y) = E[XY]_{\max} - \bar{X} \bar{Y}$$
+
+Substituting the expectation:
+
+$$\text{Cov}_{\max}(X,Y) = \frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j}) - \bar{X} \bar{Y}$$
+
+* * *
+
+### **Step 6: Compute $r_{\max}$**
+
+Using Pearson’s formula:
+
+$$r_{\max} = \frac{\text{Cov}_{\max}(X, Y)}{\sigma_X \sigma_Y}$$ $$r_{\max} =  
+\frac{\frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j}) - \bar{X} \bar{Y}}  
+{\sigma_X \sigma_Y}$$
+
+* * *
+
+### **Step 7: Numerical Example (for Clarity)**
+
+Suppose $K=3$, and the marginals are:
+
+$$n_X = (10, 5, 3), \quad n_Y = (8, 7, 3)$$
+
+So:
+
+* $N = 18$
+* Compute $\bar{X}$, $\bar{Y}$, $E[XY]_{\max}$, and then $r_{\max}$ explicitly.
+
+By providing such an example, the reader can verify the calculations with concrete numbers.
+
+* * *
+
+**Final Answer**
+----------------
+
+$$r_{\max} =  
+\frac{\frac{1}{N} \sum_{i=0}^{K-1} i \sum_{j=0}^{K-1} j \cdot \min(n_{X=i}, n_{Y=j}) - \bar{X} \bar{Y}}  
+{\sigma_X \sigma_Y}$$
+
+
+
+
+# Fréchet–Hoeffding Bounds
+
+## Symmetry
+
+

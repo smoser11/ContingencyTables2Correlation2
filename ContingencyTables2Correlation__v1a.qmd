@@ -1,0 +1,540 @@
+---
+title: "Elastic Bounds of Pearson’s  $r$: Theoretical and Empirical Insights for Ordinal Data"
+author:
+  - name: Cees van der Eijk
+    affiliation: UoN
+  - name: Scott Moser
+    affiliation: UoN
+
+# Bibliography
+bibliography: references.bib
+csl: apa.csl
+cite-method: biblatex  # for PDF, overridden in HTML/docx
+
+# BibLaTeX (PDF-only) options
+biblatexoptions:
+  - style=apa
+  - sorting=nyt
+
+# LaTeX document options
+fontsize: 12pt
+fontfamily: mathpazo
+geometry: margin=1in
+subparagraph: true
+
+header-includes:
+  - \usepackage{float}
+
+execute:
+  warning: false
+  message: false
+
+format:
+  pdf:
+    keeptex: true
+    documentclass: article
+    pdf-engine: xelatex
+    number-sections: true
+    toc: true
+    toc-depth: 3
+    colorlinks: true
+    linkcolor: black       # TOC, section refs
+    citecolor: RoyalBlue   # Citations
+    urlcolor: BrickRed     # Raw URLs
+    fig-pos: "H"
+    include-in-header:
+      text: |
+        \usepackage{amsmath}
+        \usepackage{amsfonts}
+        \usepackage{amssymb}
+        \usepackage{amsthm}
+        \newtheorem{proposition}{Proposition}
+  html:
+    toc: true
+    toc-depth: 3
+    embed-resources: true
+    theme: cosmo
+    css: [css/columns.css, css/seminar_v6.css, css/Qmd_noPublished.css]
+    cite-method: citeproc
+    csl: apa.csl
+    link-external-icon: true
+    link-external-newwindow: true
+  docx:
+    number-sections: true
+    highlight-style: github
+    cite-method: citeproc
+    csl: apa.csl
+    # reference-doc: custom-reference.docx
+---
+
+
+
+```{r setup, include=FALSE}
+# Ensure fs is available
+if (!requireNamespace("fs", quietly = TRUE)) install.packages("fs")
+
+# Define paths
+home_dir <- Sys.getenv("HOME")
+bib_source <- fs::path(home_dir, "Dropbox", "Bibliog", "scottAll5-BBL-URLdoi2024.bib")
+bib_target <- "references.bib"
+
+# (Re)create bibliography symlink
+if (fs::file_exists(bib_target)) fs::file_delete(bib_target)
+fs::link_create(bib_source, bib_target)
+message("- (Re)created bibliography symlink")
+
+# CSS setup
+fs::dir_create("css")
+css_dir <- fs::path(home_dir, "Dropbox", "LaTeX", "Stationary", "Rmakrdown")
+css_files <- c("columns.css", "seminar_v6.css", "Qmd_noPublished.css")
+
+for (file in css_files) {
+  source <- fs::path(css_dir, file)
+  target <- fs::path("css", file)
+  if (fs::file_exists(target)) fs::file_delete(target)
+  fs::link_create(source, target)
+  message(paste("- (Re)created symlink for", file))
+}
+
+# Download CSL file if missing
+if (!fs::file_exists("apa.csl")) {
+  download.file(
+    "https://raw.githubusercontent.com/citation-style-language/styles/master/apa.csl",
+    "apa.csl"
+  )
+  message("- Downloaded APA citation style")
+}
+
+message("Setup complete!")
+```
+
+```{r setupKF, include=FALSE, eval=FALSE}
+knitr::opts_chunk$set(fig.path="figure/graphics-", 
+                      cache.path="cache/graphics-", 
+                      fig.align="center",
+                      external=TRUE,
+                      warning=FALSE,
+                      fig.pos="H",
+                      number_sections = FALSE)
+
+```
+
+```{r setup2, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE) #fig.path="~/Dropbox/teaching/Notts/figures/", base.dir="~/Dropbox/teaching/Notts/figures/")
+knitr::opts_knit$set(root.dir = 					 "~/Dropbox/teaching/Notts/QSTEP/dataSets/data-teaching/") #"~/Dropbox/teaching/Notts/figures/") 
+options(tinytex.verbose = TRUE)
+```
+
+<!-- NOTES: (1)custom placement of Endnotes only works for `html_document(2)` -- not pdf_document   (2) boxes added -> uses `\usepackage{framed}` for LaTeX-ing -- see https://bookdown.org/yihui/rmarkdown-cookbook/custom-blocks.html  (3)    -->
+
+
+<!-- As discussed in the [this footnote](#footnote1)  the results are significant.[^11] -->
+
+<!-- [^11]: <a name="footnote1"></a>Your detailed footnote text goes here. -->
+
+
+
+
+
+\begin{abstract}
+Pearson’s correlation coefficient $r$, when applied to ordinal data, is subject to elasticity due to constraints from marginal distributions. This paper develops theoretical bounds for $r$, based on Boole–Fréchet–Hoeffding inequalities and rearrangement inequalities, and derives analytic expressions for their limits. We investigate when symmetry in the bounds holds or breaks, and explore practical implications for correlation-based methods like PCA and SEM. An accompanying R package allows users to compute bounds and perform hypothesis tests given fixed marginals.
+\end{abstract}
+
+# Introduction and Motivation
+
+- The widespread use of Pearson’s $r$ with ordinal data.  
+- The problem of elasticity: how max/min bounds of $r$ vary with marginals.  
+- Contributions:
+
+  1. Theory of optimal bounds  
+  2. Symmetry-breaking conditions  
+  3. Empirical consequences  
+  4. Supporting tools  
+
+# Background and Definitions
+
+- Ordinal data and assumptions of interval-scale correlation  
+- Existing alternatives: Spearman, polychoric, polyserial; their strengths and limitations  
+- Coupling and rearrangement in discrete settings  
+
+# Theoretical Framework
+
+## Optimal Coupling and Correlation Bounds
+
+We formalize the problem of identifying the joint distribution (coupling) of two ordinal variables with fixed marginals that maximizes or minimizes the Pearson correlation.
+
+
+\begin{proposition}
+
+
+Let $X$ and $Y$ be discrete ordinal random variables, each with finite ordered support:
+
+$$
+X: x_1 < x_2 < \dots < x_{K_X},\quad Y: y_1 < y_2 < \dots < y_{K_Y}
+$$
+
+with marginal probability distributions $p_X(x_i) = P(X = x_i)$, $p_Y(y_j) = P(Y = y_j)$, respectively.
+
+Then, the maximum and minimum values of the Pearson correlation coefficient $r_{XY}$, consistent with the fixed marginals, are obtained as follows:
+
+- Maximum $r_{XY}$: achieved by pairing largest $X$-values with largest $Y$-values (comonotonic arrangement).
+    
+- Minimum $r_{XY}$: achieved by pairing largest $X$-values with smallest $Y$-values (anti-comonotonic arrangement).
+    
+\end{proposition}
+
+
+
+\begin{proof}
+
+
+
+The Pearson correlation coefficient is given by:
+
+$$r_{XY} = \frac{E[XY] - E[X]E[Y]}{\sigma_X \sigma_Y}.$$
+
+Given fixed marginals $p_X(x_i)$, $p_Y(y_j)$, the expectations $E[X], E[Y]$ and standard deviations $\sigma_X, \sigma_Y$ are constant. Thus, to maximize or minimize $r_{XY}$, we only need to maximize or minimize the expectation $E[XY]$:
+
+$$E[XY] = \sum_{i=1}^{K_X}\sum_{j=1}^{K_Y} x_i y_j P(X = x_i, Y = y_j).$$
+
+This proof relies on a rearrangement inequality of @hard52-inequalities (Theorem 368):
+
+For real sequences $a_1 \leq a_2 \leq \dots \leq a_n$ and $b_1 \leq b_2 \leq \dots \leq b_n$, and for any permutation $\pi$ of indices $\{1,\dots,n\}$ we have the following:
+
+    
+
+$$a_1 b_1 + a_2 b_2 + \dots + a_n b_n \geq a_1 b_{\pi(1)} + a_2 b_{\pi(2)} + \dots + a_n b_{\pi(n)}$$
+and
+ 
+    
+$$a_1 b_n + a_2 b_{n-1} + \dots + a_n b_1 \leq a_1 b_{\pi(1)} + a_2 b_{\pi(2)} + \dots + a_n b_{\pi(n)}$$
+
+Equality occurs only if the permutation $\pi$ is monotonically increasing (for maximum) or monotonically decreasing (for minimum).
+
+
+
+To explicitly connect this to our problem, enumerate observations explicitly from sorted marginals:
+    
+ 
+        $$X_{\downarrow}: x_{[K_X]} \geq x_{[K_X-1]} \geq \dots \geq x_{[1]}, \quad  
+        Y_{\downarrow}: y_{[K_Y]} \geq y_{[K_Y-1]} \geq \dots \geq y_{[1]}.$$
+(Sorted in descending order for maximization)
+* Expand discrete probability distributions into explicit observation-level sequences. Suppose we have $N$ total observations (large enough to represent all probabilities exactly as counts):
+    
+    * Sequence for $X$:
+        
+        $$(x_{[K_X]}, x_{[K_X]}, \dots, x_{[1]}) \quad\text{with}\quad n_{X}(x_i)=N p_X(x_i).$$
+    * Sequence for $Y$:
+        
+        $$(y_{[K_Y]}, y_{[K_Y]}, \dots, y_{[1]}) \quad\text{with}\quad n_{Y}(y_j)=N p_Y(y_j).$$
+
+If $K_X \neq K_Y$, extend the shorter sequence with zero-probability categories so both sequences have equal length, which does not affect marginal probabilities or correlation.
+
+Hence, to maximize $E[XY]$: pair the largest ranks of $X$ with the largest ranks of $Y$. Explicitly, start from the top (highest values) and move downward:
+    
+    * Pair as many observations of the largest $X$-category as possible with the largest $Y$-category, then next-largest, etc., until all observations are paired.
+        
+* By the Hardy–Littlewood–Pólya Rearrangement Inequality, this explicitly constructed pairing yields the maximum possible sum of products, hence maximizing $E[XY]$.
+    
+
+Likewise, to minimize $E[XY]$ pair the largest $X$-categories with the smallest $Y$-categories, then second-largest $X$-categories with second-smallest $Y$-categories, and so forth (anti-comonotonic ordering).   By the rearrangement inequality, this arrangement explicitly yields the minimal sum of products, hence minimizing $E[XY]$.
+    
+
+
+\end{proof}
+
+In words, given fixed marginals, we have shown:
+
+* **Maximum correlation $r_{\text{max}}$** is achieved by comonotonic arrangement:
+    
+    $$P_{\text{max}}(X=x_{[i]}, Y=y_{[i]}) \quad\text{in descending order.}$$
+* **Minimum correlation $r_{\text{min}}$** is achieved by anti-comonotonic arrangement:
+    
+    $$P_{\text{min}}(X=x_{[i]}, Y=y_{[n+1-i]}) \quad\text{pairing descending X with ascending Y.}$$
+
+With this explicit construction we can simply calculate $r_{max}$ and $r_{min}$ when the values of $X$ and $Y$ are ranks.
+
+\begin{proposition}[Corollary: Analytic Forms for $r_{\min}$ and $r_{\max}$]
+
+
+Let two ordinal variables $X$ and $Y$ have values as follows:
+
+* $X$ with $K_X$ ordinal levels: $1,2,\dots,K_X$
+    
+* $Y$ with $K_Y$ ordinal levels: $1,2,\dots,K_Y$
+    
+
+with absolute frequencies:
+
+- $n_{X}(i)$, number of observations at level $i$ of $X$.
+    
+- $n_{Y}(j)$, number of observations at level $j$ of $Y$.
+    
+
+Then the maximum Pearson correlation is:
+
+$$r_{\text{max}} = \frac{E[XY]_{\text{max}} - \bar{X}\bar{Y}}{\sigma_X \sigma_Y}.$$
+Where 
+
+$$
+E[XY]_{\max} =\frac{1}{N}\sum_{i=1}^{K_X}\sum_{j=1}^{K_Y}x_i y_j M_{i,j}
+$$
+
+where explicitly defined frequencies $M_{i,j}$ pair observations in a comonotonic manner, calculated explicitly via the greedy iterative approach outlined below.
+
+Define the matrix $M_{i,j}$, the frequency with which the level $x_i$ pairs with the level $y_j$. Clearly, we must have:
+
+$$\sum_j M_{i,j}=n_X(i),\quad\sum_i M_{i,j}=n_Y(j)$$
+
+**Algorithm for explicit calculation of $M_{i,j}$** (greedy method):
+
+Initialize available frequencies explicitly:  $n'_Y(j)=n_Y(j)\quad\text{for each }j$
+
+- For each level $x_i$, from smallest $i=1$ to largest:
+    
+    - For each level $y_j$, from smallest $j=1$ to largest:
+        
+        - Pair as many observations as possible:
+            
+
+$$M_{i,j}=\min\left(n_X(i)-\sum_{s=1}^{j-1}M_{i,s},\, n'_Y(j)\right)$$
+
+Next, update explicitly: $$n'_Y(j)\leftarrow n'_Y(j)-M_{i,j}$$
+
+
+
+
+Similarly, the minimum Pearson correlation ($r_{\text{min}}$) achieved by anti-comonotonic alignment (pairing largest ranks of $X$ with smallest ranks of $Y$) is explicitly:
+$$r_{\text{min}} = \frac{E[XY]_{\text{min}} - \bar{X}\bar{Y}}{\sigma_X \sigma_Y}.$$
+
+Where
+$$E[XY]_{\text{min}} = \frac{1}{N}\sum_{i=1}^{K_X}\sum_{j=1}^{K_Y}  
+\left[\max\left(0,\;\min(N_X^{\ge i},N_Y^{\le j}) - \max(N_X^{\ge i+1},N_Y^{\le j-1})\right)\right]\cdot(i\,j)$$
+
+
+
+
+
+and the cumulative frequencies for $Y$ (from 'bottom-up') are:
+
+$$N_Y^{\le j} = \sum_{k=1}^{j} n_Y(k),\quad N_Y^{\le 0}=0,\; N_Y^{\le K_Y}=N.$$
+
+\end{proposition}
+
+
+\begin{proof}
+
+Let the total number of observations be $N$, thus:
+
+$$\sum_{i=1}^{K_X} n_{X}(i) = N,\quad \sum_{j=1}^{K_Y} n_{Y}(j) = N.$$
+
+Means and standard deviations clearly become:
+
+Means:
+    
+$$
+\bar{X} = \frac{1}{N}\sum_{i=1}^{K_X} i \cdot n_X(i),\quad  
+    \bar{Y} = \frac{1}{N}\sum_{j=1}^{K_Y} j \cdot n_Y(j).
+$$
+Standard deviations:
+    
+$$
+\sigma_X = \sqrt{\frac{1}{N}\sum_{i=1}^{K_X} (i - \bar{X})^2 n_X(i)},\quad  
+    \sigma_Y = \sqrt{\frac{1}{N}\sum_{j=1}^{K_Y} (j - \bar{Y})^2 n_Y(j)}.
+$$
+
+
+To achieve the maximum expected product $E[XY]_{\text{max}}$, do the following:
+First *sort* ranks from largest to smallest for both $X$ and $Y$; then *pair* ranks directly from highest to lowest available observations.
+    
+
+
+
+
+**Minimum Expectation**
+  
+
+Define explicitly a matrix $R_{i,j}$ giving frequencies of pairings $X=x_i$ with $Y=y_j$. For the minimal expectation, pair largest available $X$-values explicitly with smallest available $Y$-values first (greedy algorithm):
+
+Initialize explicitly available frequencies:
+    
+
+$$n'_Y(j)=n_Y(j)\quad\text{for each }j$$
+
+* For $i$ from largest to smallest ($i=K_X$ down to $1$):
+    
+    * For $j$ from smallest to largest ($j=1$ up to $K_Y$):
+        
+        * Pair explicitly as many observations as possible:
+            
+
+$$R_{i,j}=\min\left(n_X(i)-\sum_{s=1}^{j-1}R_{i,s},\, n'_Y(j)\right)$$
+
+Update explicitly available frequencies:
+
+
+$$n'_Y(j)\leftarrow n'_Y(j)-R_{i,j}$$
+
+Then explicitly the minimal expectation is:
+
+$$E[XY]_{\text{min}}=\frac{1}{N}\sum_{i=1}^{K_X}\sum_{j=1}^{K_Y} x_i y_j R_{i,j}$$
+
+  
+
+Formally, define cumulative frequencies (from top ranks down):
+
+For $X$:
+    
+   $$
+    N_X^{\ge i} = \sum_{k=i}^{K_X} n_X(k)
+    $$
+
+For $Y$:
+    
+ $$
+    N_Y^{\ge j} = \sum_{k=j}^{K_Y} n_Y(k)
+    $$
+
+Then, explicitly we have:
+
+$$E[XY]_{\text{max}} = \frac{1}{N}\sum_{i=1}^{K_X}\sum_{j=1}^{K_Y}  
+\left[\max\left(0,\;\min(N_X^{\ge i},N_Y^{\ge j}) - \max(N_X^{\ge i+1},N_Y^{\ge j+1})\right)\right] \cdot (i\, j)$$
+
+with boundary conditions $N_X^{\ge K_X+1}=N_Y^{\ge K_Y+1}=0.$
+
+This explicit equation applies Whitt’s rearrangement theorem (@whit76-bivariate),  ensuring proper maximal pairing of ranks.
+
+The formula for $E[XY]_{\text{min}}$ is derived in a similar maner.
+
+\end{proof}
+
+**Discussion**
+
+We want to construct a joint distribution table $M$ such that:
+
+* The **row sums** match the marginal counts for $X$: $\sum_j M_{i,j} = n_X(i)$
+    
+* The **column sums** match the marginal counts for $Y$: $\sum_i M_{i,j} = n_Y(j)$
+    
+
+To do this, we go **greedily**, pairing the highest available $X$ values with the **smallest available** $Y$ values, one cell at a time.
+
+To avoid **exceeding** the available marginal totals in $Y$, we must track how much of $n_Y(j)$ is **still unassigned** at each step — and that’s what $n_Y'(j)$ represents.  
+After assigning $M_{i,j}$ units to the cell $(i,j)$, we subtract that amount from the remaining pool of level $y_j$ values, like this:  $n_Y'(j) \leftarrow n_Y'(j) - M_{i,j}$This ensures we don’t **overfill** any column of the matrix.
+
+To maximize the expectation $E[XY]$, the rearrangement inequality states we must pair values of $X$ and $Y$ from smallest-to-smallest, second-smallest-to-second-smallest, and so forth (comonotonic alignment).
+
+Thus, explicitly:
+
+* Sort $X$: lowest-to-highest:
+    
+
+$$X_{\text{sorted}} = (\underbrace{x_1,\dots,x_1}_{n_X(1)},\dots,\underbrace{x_{K_X},\dots,x_{K_X}}_{n_X(K_X)})$$
+
+
+* Sorted $X$-values:
+    
+
+$$X_{\text{sorted}} = (\underbrace{x_1,\dots,x_1}_{n_X(1)}, \underbrace{x_2,\dots,x_2}_{n_X(2)}, \dots,\underbrace{x_{K_X},\dots,x_{K_X}}_{n_X(K_X)})$$
+
+Sorted $Y$-values (ascending order for max, descending for min):
+    
+
+$$Y_{\text{sorted(max)}} = (\underbrace{y_1,\dots,y_1}_{n_Y(1)}, \underbrace{y_2,\dots,y_2}_{n_Y(2)}, \dots,\underbrace{y_{K_Y},\dots,y_{K_Y}}_{n_Y(K_Y)})$$ 
+
+$$Y_{\text{sorted(min)}} = (\underbrace{y_{K_Y},\dots,y_{K_Y}}_{n_Y(K_Y)}, \underbrace{y_{K_Y-1},\dots,y_{K_Y-1}}_{n_Y(K_Y-1)}, \dots,\underbrace{y_1,\dots,y_1}_{n_Y(1)})$$
+
+The maximum and minimum expectations are simply:
+
+* **Maximum expectation** (pair element-by-element):
+    
+
+$$E[XY]_{\text{max}} = \frac{1}{N}\sum_{k=1}^{N} X_{\text{sorted}}(k)\cdot Y_{\text{sorted(max)}}(k)$$
+
+* **Minimum expectation**:
+    
+
+$$E[XY]_{\text{min}} = \frac{1}{N}\sum_{k=1}^{N} X_{\text{sorted}}(k)\cdot Y_{\text{sorted(min)}}(k)$$
+
+Then the maximum expectation explicitly is:
+
+$$E[XY]_{\text{max}}=\frac{1}{N}\sum_{k=1}^{N}X_{\text{sorted}}(k)\cdot Y_{\text{sorted(max)}}(k)$$
+And similarly for the minimum:
+$$E[XY]_{\text{min}}=\frac{1}{N}\sum_{k=1}^{N}X_{\text{sorted}}(k)\cdot Y_{\text{sorted(min)}}(k)$$
+
+
+
+
+
+
+
+## Fréchet–Hoeffding and Boole–Fréchet Inequalities
+
+These classical bounds define feasible joint distributions given marginals and constrain the attainable values of $r$.
+
+## Symmetry and the Role of Ties
+
+- Conditions under which $r_{\min} = -r_{\max}$
+- How ties in marginal distributions affect the attainability of the lower bound  
+
+## Special Cases and Boundary Conditions
+
+- Equal vs. unequal numbers of categories  
+- Symmetric vs. asymmetric marginal distributions  
+
+## Relation to Copula Theory (Optional)
+
+Although our setting is discrete, the problem is conceptually linked to copula-based modeling of dependence with fixed marginals. The connection is discussed as a direction for future work.
+
+# Empirical Illustration and Practical Relevance
+
+## Effects of Marginal Shapes
+
+- Shape-based elasticity of correlation bounds  
+- Influence of skewness, modality, and entropy  
+
+## Symmetry Breaking in Correlation Bounds
+
+- When and why $r_{\min} \neq -r_{\max}$
+- Empirical indicators of bound asymmetry  
+
+## Applications and Implications
+
+- Impact on PCA, factor analysis, and SEM using ordinal data  
+- Practical risks: over-factoring, biased structural coefficients  
+- Recommendations for interpreting Pearson's $r$ in applied contexts  
+
+# Extensions and Open Questions
+
+- Role of entropy and joint uncertainty in bounding behavior  
+- Probabilistic modeling over the $r \in [r_{\min}, r_{\max}]$ interval  
+- Possibility of adjusting or normalizing $r$  
+
+# Conclusion
+
+- Summary: Theoretical bounds, symmetry-breaking conditions, and implications for applied research  
+- An R package accompanies this paper, providing tools to compute max/min bounds and perform randomization-based hypothesis tests for fixed marginals. Details are available in the appendix and online.  
+- Future work: deeper integration with copula models, correction strategies, and generalizations to higher dimensions  
+
+\newpage
+# References
+
+::: {#refs}
+<!-- This will be populated by Pandoc if you use --citeproc and a .bib file -->
+:::
+
+\newpage
+# Appendix A: Mathematical Proofs
+
+- Formal derivations of optimal coupling and analytical bounds  
+
+# Appendix B: Software Tools and Code Listings
+
+- Documentation and examples for the R package  
+- Description of randomization testing features  
+
+# Appendix C: Additional Tables and Simulations
+
+- Supplementary empirical examples, simulation results  
+
+
